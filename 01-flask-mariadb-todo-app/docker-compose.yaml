@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  mariadb:
+    image: mariadb:10.5
+    container_name: mariadb
+    restart: always
+    environment:
+      # The value is now pulled from the .env file
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: goalsdb
+    volumes:
+      - todo_db_data:/var/lib/mysql
+      
+  pythonapp:
+    build: .
+    container_name: todo_app
+    restart: always
+    depends_on:
+      - mariadb
+    environment:
+      - DB_HOST=mariadb
+      - DB_USER=root
+      # The value is now pulled from the .env file
+      - DB_PASSWORD=${DB_ROOT_PASSWORD}
+      - DB_NAME=goalsdb
+    ports:
+      - "8080:5000"
+
+volumes:
+  todo_db_data:
